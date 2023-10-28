@@ -1,13 +1,46 @@
 #!/bin/sh
 
-# variables
-script="$pkg is not installed on this computer. Installing $pkg now..."
-installpkg="sudo nala install $pkg -y >/dev/null 2>&1"
+################################
+# FUNCTIONS
+################################
 
-# Package dependency checks
+installcomment() {
+    echo "'$pkg' is not yet installed on this computer. Installing '$pkg' now..."
+}
+
+installloop() {
+    for pkg in "${pkgs[@]}"; do
+        [ ! -e /usr/bin/$pkg ] && installcomment && installpkg
+    done
+}
+
+installpkg() {
+    sudo nala install $pkg -y >/dev/null 2>&1
+}
+
+modulecheck() {
+    [ -f modules/$module ] && echo "failed at $module" && gtfo="kthxbye" && break
+    [[ $gtfo = "kthxbye" ]] && exit 1
+}
+
+modulerun() {
+    [ -f modules/$module ] && bash modules/$module && mv modules/$module modules/completed
+}
+
+moduleloop() {
+    for module in "${modules[@]}"; do
+        modulerun && modulecheck
+    done
+}
+
+################################
+# PACKAGE DEPENDENCY CHECKS
+################################
+
 echo "Updating package repositories..."
 [ -e /usr/bin/nala ] && sudo nala update >/dev/null 2>&1
-[ ! -e /usr/bin/nala ] && sudo apt update >/dev/null 2>&1 && echo "$script" && sudo apt install nala -y >/dev/null 2>&1
+[ ! -e /usr/bin/nala ] && sudo apt update >/dev/null 2>&1 \
+    && pkg="nala" && installcomment && sudo apt install $pkg -y >/dev/null 2>&1
 
 pkgs=(
 "cmake"
@@ -17,14 +50,17 @@ pkgs=(
 "zsh"
 )
 
-for pkg in "${pkgs[@]}"; do
-    [ ! -e /usr/bin/$pkg ] && echo "$script" && $installpkg
-done
+installloop
 
-pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/gettext ] && echo "$script" && $installpkg
-pkg="rg" && [ ! -e /usr/bin/$pkg ] && pkg="ripgrep" && echo "$script" && $installpkg
+pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/gettext ] \
+    && installcomment && installpkg
+pkg="rg" && [ ! -e /usr/bin/$pkg ] \
+    && pkg="ripgrep" && installcomment && installpkg
 
-# Installation of modules
+################################
+# MODULES
+################################
+
 mkdir -p modules/completed
 
 modules=(
@@ -36,11 +72,6 @@ modules=(
 "do-thru-ui.sh"
 )
 
-for module in "${modules[@]}"; do
-    [ -f modules/$module ] && bash modules/$module && mv modules/$module modules/completed
-    [ -f modules/$module ] && echo "failed at $module" && gtfo="kthxbye" && break
-done
-
-[[ $gtfo = "kthxbye" ]] && exit 1
+moduleloop
 
 echo "debian-kde-bismuth installation complete!"
