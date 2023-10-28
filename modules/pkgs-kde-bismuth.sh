@@ -5,5 +5,5 @@
 
 while read pkg; do
     echo "$pkg is not installed on this computer. Installing $pkg now..."
-    sudo nala install $pkg -y
+    sudo nala install $pkg -y 2>&1
 done < package-list
