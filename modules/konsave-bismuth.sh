@@ -5,7 +5,7 @@ python3 -m venv ~/.local/bin/python3
 ~/.local/bin/python3/bin/python3 -m pip install konsave
 
 # use `sed` or `tee` to add `konsave` alias to the end of the aliasrc file
-echo '\nalias konsave="~/.local/bin/python3/bin/konsave"' >> ~/.config/shell/aliasrc
+echo -e '\nalias konsave="~/.local/bin/python3/bin/konsave"' >> ~/.config/shell/aliasrc
 source ~/.config/shell/aliasrc
 
 # use `konsave` to import and apply the tiling window manager setup
