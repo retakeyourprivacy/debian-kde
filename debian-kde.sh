@@ -63,7 +63,7 @@ nalacheck() {
 
 qprofile() {
     options=(
-    "Dumb Windows"
+    "Not Windows"
     "Tiling Window Manager"
     "Mystery third option"
     "Exit the program"
@@ -74,7 +74,7 @@ qprofile() {
 
     select option in "${options[@]}"; do
         case $REPLY in
-            1) kdeprofile=dumbwindows; break;;
+            1) kdeprofile=notwindows; break;;
             2) kdeprofile=bismuth; break;;
             4) echo "Exiting now." && exit;;
             *) echo "Unknown response. Try again. $REPLY";;
@@ -85,19 +85,20 @@ qprofile() {
 }
 
 profilecleanup() {
-    [ -f profile.knsv ] && rm profile.knsv
-    cp konsave-profiles/$kdeprofile.knsv profile.knsv
+    [ -f do-thru-ui.md ] && rm do-thru-ui.md
+    cp do-thru-ui/do-thru-ui-$kdeprofile.md do-thru-ui.md
 
     [ -f package-list ] && rm package-list
     cp package-lists/package-list-$kdeprofile package-list
+
+    [ -f profile.knsv ] && rm profile.knsv
+    cp konsave-profiles/$kdeprofile.knsv profile.knsv
 
     [ -d images-in-use ] && rm -r images-in-use
     cp -r image-files/$kdeprofile images-in-use
     [ -d ~/Pictures ] && mkdir -p ~/Pictures
     cp -r images-in-use ~/Pictures
-
-    [ -f do-thru-ui.md ] && rm do-thru-ui.md
-    cp do-thru-ui/do-thru-ui-$kdeprofile.md do-thru-ui.md
+    [ -d ~/.local/share/wallpapers ] && mkdir -p ~/.local/share/wallpapers
 }
 
 ################################
