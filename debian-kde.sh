@@ -42,8 +42,8 @@ moduleloop() {
     modules=(
     "shell.sh"
     "p10k.sh"
-    "pkgs-kde-bismuth.sh"
-    "konsave-bismuth.sh"
+    "pkgs-kde.sh"
+    "konsave.sh"
     #"flatpaks.sh"
     "do-thru-ui.sh"
     )
@@ -63,13 +63,13 @@ nalacheck() {
 
 qprofile() {
     options=(
-    "Fake Windows"
+    "Dumb Windows"
     "Tiling Window Manager"
     "Mystery third option"
     "Exit the program"
     )
 
-    echo "This script will install a KDE Plasma desktop environment on this computer. Please choose the desktop that you would like to use."
+    echo "This script will install a KDE Plasma desktop environment on this computer. Please choose the desktop that you would like to use. See the README.md for more information about the different options."
     PS3="Please select a number: "
 
     select option in "${options[@]}"; do
@@ -85,15 +85,19 @@ qprofile() {
 }
 
 profilecleanup() {
-    mv konsave-profiles/$kdeprofile.knsv profile.knsv
+    [ -f profile.knsv ] && rm profile.knsv
+    cp konsave-profiles/$kdeprofile.knsv profile.knsv
 
-    mv package-lists/package-list-$kdeprofile package-list
+    [ -f package-list ] && rm package-list
+    cp package-lists/package-list-$kdeprofile package-list
 
-    mv image-files/$kdeprofile images-in-use
-    mkdir -p ~/Pictures
+    [ -d images-in-use ] && rm -r images-in-use
+    cp -r image-files/$kdeprofile images-in-use
+    [ -d ~/Pictures ] && mkdir -p ~/Pictures
     cp -r images-in-use ~/Pictures
 
-    mv do-thru-ui/do-thru-ui-$kdeprofile.md do-thru-ui.md
+    [ -f do-thru-ui.md ] && rm do-thru-ui.md
+    cp do-thru-ui/do-thru-ui-$kdeprofile.md do-thru-ui.md
 }
 
 ################################
