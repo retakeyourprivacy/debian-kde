@@ -1,13 +1,17 @@
-# debian-kde-bismuth
+# debian-kde
 
-This script is an installer for a KDE Plasma system running `kwin-bismuth` as a tiling window manager. It is meant for a system that has just had Debian installed to it.
+This script is an installer for KDE Plasma systems. It includes a handful of `konsave` profiles.
+
+1. `dumb Windows` is a desktop that looks and feels a lot like Windows.
+2. `bismuth` is a tiling window manager setup.
 
 ```
-git clone https://github.com/RetakeYourPrivacy/debian-kde-bismuth .local/src/debian-kde-bismuth
+git clone https://github.com/RetakeYourPrivacy/debian-kde .local/src/debian-kde
 
-cd .local/src/debian-kde-bismuth
+cd .local/src/debian-kde
 
-bash debian-kde-bismuth.sh
+bash debian-kde.sh
 ```
 
-using '231027_bismuth-tiling-v2.knsv'.
+using '231024_dumbwindows.knsv'.
+using '231027_bismuth-v2.knsv'.

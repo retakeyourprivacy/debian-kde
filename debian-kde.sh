@@ -74,7 +74,7 @@ qprofile() {
 
     select option in "${options[@]}"; do
         case $REPLY in
-            1) kdeprofile=fakewindows; break;;
+            1) kdeprofile=dumbwindows; break;;
             2) kdeprofile=bismuth; break;;
             4) echo "Exiting now." && exit;;
             *) echo "Unknown response. Try again. $REPLY";;
