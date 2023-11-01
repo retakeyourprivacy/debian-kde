@@ -11,6 +11,7 @@ conditionalactions() {
     [ $linux = nix ] && mv ~/.config/shell/aliasrc-nix ~/.config/shell/aliasrc
     if [ $linux = deb ]; then
         mv ~/.config/shell/aliasrc-debian ~/.config/shell/aliasrc
+
         # update neovim
         [ ! -d ~/.local/src/neovim ] && echo "cloning neovim. this may take a moment." && git clone https://github.com/neovim/neovim.git ~/.local/src/neovim > /dev/null 2>&1
         cd ~/.local/src/neovim && git checkout stable > /dev/null 2>&1
@@ -43,6 +44,17 @@ interactivebit() {
     done
 
     echo "Selected '$type'" && echo
+
+    neovimbuilddependencychecks
+
+    echo "Do you plan to use neovim for coding at any point in the future with this machine?"
+
+    select yn in "obviously!" "neovim?"; do
+        case $yn in
+            obviously! ) echo "You chose 'yes'."; l33thax="yes"; break;;
+            neovim? ) echo "You chose 'no'."; l33thax="no"; break;;
+        esac
+    done
 }
 
 neovimbuilddependencychecks() {
@@ -62,15 +74,6 @@ neovimbuilddependencychecks() {
 
         [[ $needpkg = "yes" ]] && exit 1
     fi
-
-    echo "Do you plan to use neovim for coding at any point in the future with this machine?"
-
-    select yn in "obviously!" "neovim?"; do
-        case $yn in
-            obviously! ) echo "You chose 'yes'."; l33thax="yes"; break;;
-            neovim? ) echo "You chose 'no'."; l33thax="no"; break;;
-        esac
-    done
 }
 
 packagedependencychecks() {
@@ -108,8 +111,6 @@ unconditionalactions() {
 packagedependencychecks
 
 interactivebit
-
-neovimbuilddependencychecks
 
 [ ! -d ~/.cache/bash ] && mkdir -p ~/.cache/bash
 [ ! -d ~/.cache/zsh ] && mkdir -p ~/.cache/zsh
