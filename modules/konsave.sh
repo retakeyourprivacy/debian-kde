@@ -11,3 +11,4 @@ echo -e '\nalias konsave="~/.local/bin/python3/bin/konsave"' >> ~/.config/shell/
 ~/.local/bin/python3/bin/konsave -i profile.knsv
 ~/.local/bin/python3/bin/konsave -a profile
 rm ~/.config/konsave/conf.yaml
+xrandr -s 1920x1080

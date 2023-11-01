@@ -85,6 +85,9 @@ qprofile() {
 }
 
 profilecleanup() {
+    [ ! -d ~/.local/share/konsole ] && mkdir -p ~/.local/share/konsole
+    [ ! -d ~/.local/share/kxmlgui5 ] && mkdir -p ~/.local/share/kxmlgui5
+
     [ -f do-thru-ui.md ] && rm do-thru-ui.md
     cp do-thru-ui/do-thru-ui-$kdeprofile.md do-thru-ui.md
 
