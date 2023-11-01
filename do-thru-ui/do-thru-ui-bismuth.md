@@ -3,8 +3,6 @@
 
 - set the:
     - desktop wallpaper
-    - lock screen wallpaper
-    - start menu icon
     - user logo icon
 - go to 'keyboards' in settings and map 'caps lock' to 'escape' with shift power
 - set up auto-login by going to the startup section and hitting behavior
