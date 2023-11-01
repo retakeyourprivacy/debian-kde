@@ -10,3 +10,4 @@ echo -e '\nalias konsave="~/.local/bin/python3/bin/konsave"' >> ~/.config/shell/
 # use `konsave` to import and apply the tiling window manager setup
 ~/.local/bin/python3/bin/konsave -i profile.knsv
 ~/.local/bin/python3/bin/konsave -a profile
+rm ~/.config/konsave/conf.yaml

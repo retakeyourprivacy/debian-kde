@@ -94,11 +94,19 @@ profilecleanup() {
     [ -f profile.knsv ] && rm profile.knsv
     cp konsave-profiles/$kdeprofile.knsv profile.knsv
 
-    [ -d images-in-use ] && rm -r images-in-use
-    cp -r image-files/$kdeprofile images-in-use
-    [ -d ~/Pictures ] && mkdir -p ~/Pictures
-    cp -r images-in-use ~/Pictures
-    [ -d ~/.local/share/wallpapers ] && mkdir -p ~/.local/share/wallpapers
+    [ ! -d /data ] && sudo mkdir /data
+    sudo chown $USER: /data
+    [ ! -d /data/kde ] && mkdir /data/kde
+    [ ! -d /data/kde/images ] && mkdir /data/kde/images
+
+    [ -f /data/kde/images/bg.png ] && rm /data/kde/images/bg.png
+    [ -f image-files/$kdeprofile/bg.png ] && cp image-files/$kdeprofile/bg.png /data/kde/images
+
+    [ -f /data/kde/images/startmenu.png ] && rm /data/kde/images/startmenu.png
+    [ -f image-files/$kdeprofile/startmenu.png ] && cp image-files/$kdeprofile/startmenu.png /data/kde/images
+
+    [ -f /data/kde/images/usericon.png ] && rm /data/kde/images/usericon.png
+    [ -f image-files/$kdeprofile/usericon.png ] && cp image-files/$kdeprofile/usericon.png /data/kde/images
 }
 
 ################################
