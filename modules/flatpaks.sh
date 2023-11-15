@@ -4,12 +4,12 @@
 # FUNCTIONS
 ################################
 
-paks=[
+paks=(
 "com.github.tchx84.Flatseal"
 "com.discordapp.Discord"
 "com.spotify.Client"
 "com.github.k4zmu2a.spacecadetpinball"
-]
+)
 
 flatinstall() {
     for pak in "${paks[@]}"; do
