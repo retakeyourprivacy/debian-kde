@@ -1,41 +1,52 @@
 #!/bin/sh
 
 ################################
+# VARIABLES
+################################
+
+types=(
+"Debian (includes Ubuntu)"
+"Arch Linux (includes Artix)"
+"NixOS"
+"Exit the program"
+)
+
+################################
 # FUNCTIONS
 ################################
 
-conditionalactions() {
-    [[ $l33thax = "yes" ]] && echo 'require("lsp-v2")' > ~/.config/nvim/init.lua || rm ~/.config/nvim/after/plugin/lsp.lua
+dependencychecks() {
+    pkgs=(
+    "curl"
+    "git"
+    )
 
-    [ $linux = arch ] && mv ~/.config/shell/aliasrc-arch ~/.config/shell/aliasrc
-    [ $linux = nix ] && mv ~/.config/shell/aliasrc-nix ~/.config/shell/aliasrc
-    if [ $linux = deb ]; then
-        mv ~/.config/shell/aliasrc-debian ~/.config/shell/aliasrc
+    for pkg in "${pkgs[@]}"; do
+        [ ! -e /usr/bin/$pkg ] && installcomment && needpkg="yes"
+    done
 
-        # update neovim
-        [ ! -d ~/.local/src/neovim ] && echo "cloning neovim. this may take a moment." && git clone https://github.com/neovim/neovim.git ~/.local/src/neovim > /dev/null 2>&1
-        cd ~/.local/src/neovim && git checkout stable > /dev/null 2>&1
-        echo "packaging neovim. this may take up to TEN whole moments." && make CMAKE_BUILD_TYPE=RelWithDebInfo > /dev/null 2>&1
-        echo "updating neovim!" && sudo make install > /dev/null 2>&1
-        echo "removing the old neovim." && sudo nala remove neovim -y > /dev/null 2>&1
-        echo "For PATH to reset on neovim, close the terminal and open a new shell."
-    fi
+    pkg="rg" && [ ! -e /usr/bin/$pkg ] && pkg="ripgrep" && installcomment && needpkg="yes"
+
+    [[ $needpkg = "yes" ]] && exit 1
+}
+
+installcomment() {
+    echo "'$pkg' is not yet installed on this computer. Please install '$pkg' before proceeding."
 }
 
 interactivebit() {
-    types=(
-    "Debian (includes Ubuntu)"
-    "Arch Linux (includes Artix)"
-    "NixOS"
-    "Exit the program"
-    )
+    question1
 
+    question2
+}
+
+question1() {
     echo "This is an initialization script for setting up shells on new Linux computers. Please look at the following list and select the best option:"
     PS3="Please choose a number: "
 
     select type in "${types[@]}"; do
         case $REPLY in
-            1) linux=deb; break;;
+            1) linux=debian; break;;
             2) linux=arch; break;;
             3) linux=nix ; break;;
             4) echo "Exiting now." && exit;;
@@ -45,8 +56,29 @@ interactivebit() {
 
     echo "Selected '$type'" && echo
 
-    neovimbuilddependencychecks
+    buildneovimdependencychecks
+}
 
+buildneovimdependencychecks() {
+    if [ $linux = debian ]; then
+
+        pkgs=(
+        "cmake"
+        "nala"
+        "unzip"
+        )
+
+        for pkg in "${pkgs[@]}"; do
+            [ ! -e /usr/bin/$pkg ] && installcomment && needpkg="yes"
+        done
+
+        pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/$pkg ] && installcomment && needpkg="yes"
+
+        [[ $needpkg = "yes" ]] && exit 1
+    fi
+}
+
+question2() {
     echo "Do you plan to use neovim for coding at any point in the future with this machine?"
 
     select yn in "obviously!" "neovim?"; do
@@ -57,43 +89,10 @@ interactivebit() {
     done
 }
 
-neovimbuilddependencychecks() {
-    if [ $linux = deb ]; then
-
-        pkgs=(
-        "cmake"
-        "nala"
-        "unzip"
-        )
-
-        for pkg in "${pkgs[@]}"; do
-            [ ! -e /usr/bin/$pkg ] && echo "$script" && needpkg="yes"
-        done
-
-        pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/$pkg ] && echo "$script" && needpkg="yes"
-
-        [[ $needpkg = "yes" ]] && exit 1
-    fi
-}
-
-packagedependencychecks() {
-    script="$pkg is not installed on this computer. Please install $pkg before proceeding."
-
-    pkgs=(
-    "curl"
-    "git"
-    )
-
-    for pkg in "${pkgs[@]}"; do
-        [ ! -e /usr/bin/$pkg ] && echo "$script" && needpkg="yes"
-    done
-
-    pkg="rg" && [ ! -e /usr/bin/$pkg ] && pkg="ripgrep" && echo "$script" && needpkg="yes"
-
-    [[ $needpkg = "yes" ]] && exit 1
-}
-
 unconditionalactions() {
+    [ ! -d ~/.cache/bash ] && mkdir -p ~/.cache/bash
+    [ ! -d ~/.cache/zsh ] && mkdir -p ~/.cache/zsh
+
     cd && git init > /dev/null 2>&1
     git remote add dotfiles https://github.com/DavidVogelxyz/dotfiles.git
     git fetch dotfiles > /dev/null 2>&1
@@ -101,25 +100,45 @@ unconditionalactions() {
     [ -f ~/.bashrc ] && rm ~/.bashrc ; ln -s .config/bash/.bashrc ~/.bashrc
     [ -f ~/.profile ] && rm ~/.profile ; ln -s .config/shell/profile ~/.profile
     rm -rf .git LICENSE README.md
+
+    git clone https://github.com/DavidVogelxyz/nvim.git ~/.config/nvim > /dev/null 2>&1
     echo
+}
+
+conditionalactions() {
+    [[ $l33thax = "yes" ]] && echo 'require("lsp-v2")' > ~/.config/nvim/init.lua || rm ~/.config/nvim/after/plugin/lsp.lua
+
+    cp ~/.config/shell/aliasrc-$linux ~/.config/shell/aliasrc && rm ~/.config/shell/aliasrc-*
+    [ $linux = debian ] && buildneovim
+}
+
+buildneovim() {
+    [ ! -d ~/.local/src/neovim ] \
+        && echo "cloning neovim. this may take a moment." \
+        && git clone https://github.com/neovim/neovim.git ~/.local/src/neovim > /dev/null 2>&1
+    cd ~/.local/src/neovim && git checkout stable > /dev/null 2>&1
+    echo "packaging neovim. this may take up to TEN whole moments, depending on your computer's hardware." \
+        && make CMAKE_BUILD_TYPE=RelWithDebInfo > /dev/null 2>&1
+    echo "updating neovim!" && sudo make install > /dev/null 2>&1
+    echo "removing the old neovim." && sudo nala remove neovim -y > /dev/null 2>&1
+    echo "For PATH to reset on neovim, close the terminal and open a new shell."
+}
+
+completiontext() {
+    echo "Remember to refresh the shell by closing this terminal session and opening a new one!"
+    echo "Also, neovim may throw some error messages when running for the first time. this is normal -- just press enter a bunch and let the plugins install!"
 }
 
 ################################
 # ACTUAL SCRIPT
 ################################
 
-packagedependencychecks
+dependencychecks
 
 interactivebit
-
-[ ! -d ~/.cache/bash ] && mkdir -p ~/.cache/bash
-[ ! -d ~/.cache/zsh ] && mkdir -p ~/.cache/zsh
 
 unconditionalactions
 
 conditionalactions
 
-rm ~/.config/shell/aliasrc-*
-
-echo "Remember to refresh the shell with '$ source ~/.bashrc'!"
-echo "Also, neovim may throw some error messages on first run. that is normal -- just press enter a bunch and let the plugins install!"
+completiontext

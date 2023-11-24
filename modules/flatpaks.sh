@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ################################
-# FUNCTIONS
+# VARIABLES
 ################################
 
 paks=(
@@ -10,6 +10,14 @@ paks=(
 "com.spotify.Client"
 "com.github.k4zmu2a.spacecadetpinball"
 )
+
+################################
+# FUNCTIONS
+################################
+
+setupflathub() {
+    sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+}
 
 flatinstall() {
     for pak in "${paks[@]}"; do
@@ -21,7 +29,6 @@ flatinstall() {
 # ACTUAL SCRIPT
 ################################
 
-# sets up flatpak to reference the flathub repos
-sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+setupflathub
 
 flatinstall
