@@ -19,19 +19,24 @@ dependencychecks() {
     pkgs=(
     "curl"
     "git"
+    "stow"
     )
 
     for pkg in "${pkgs[@]}"; do
-        [ ! -e /usr/bin/$pkg ] && installcomment && needpkg="yes"
+        [ ! -e /usr/bin/$pkg ] && installcomment && installpkg
     done
 
-    pkg="rg" && [ ! -e /usr/bin/$pkg ] && pkg="ripgrep" && installcomment && needpkg="yes"
+    pkg="rg" && [ ! -e /usr/bin/$pkg ] && pkg="ripgrep" && installcomment && installpkg
 
     [[ $needpkg = "yes" ]] && exit 1
 }
 
 installcomment() {
-    echo "'$pkg' is not yet installed on this computer. Please install '$pkg' before proceeding."
+    echo "Installing '$pkg' now..."
+}
+
+installpkg() {
+    sudo apt install $pkg -y >/dev/null 2>&1
 }
 
 interactivebit() {
@@ -69,10 +74,10 @@ buildneovimdependencychecks() {
         )
 
         for pkg in "${pkgs[@]}"; do
-            [ ! -e /usr/bin/$pkg ] && installcomment && needpkg="yes"
+            [ ! -e /usr/bin/$pkg ] && installcomment && installpkg
         done
 
-        pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/$pkg ] && installcomment && needpkg="yes"
+        pkg="gettext" && [ ! -e /usr/lib/x86_64-linux-gnu/$pkg ] && installcomment && installpkg
 
         [[ $needpkg = "yes" ]] && exit 1
     fi
@@ -92,24 +97,23 @@ question2() {
 unconditionalactions() {
     [ ! -d ~/.cache/bash ] && mkdir -p ~/.cache/bash
     [ ! -d ~/.cache/zsh ] && mkdir -p ~/.cache/zsh
+    [ ! -d ~/.local/src ] && mkdir -p ~/.local/src
 
-    cd && git init > /dev/null 2>&1
-    git remote add dotfiles https://github.com/DavidVogelxyz/dotfiles.git
-    git fetch dotfiles > /dev/null 2>&1
-    git checkout dotfiles/master -- .
+    git clone https://github.com/DavidVogelxyz/dotfiles.git ~/.dotfiles > /dev/null 2>&1
+    ln -s ~/.dotfiles ~/.local/src/dotfiles
+    cd ~/.dotfiles && stow . ; cd
     [ -f ~/.bashrc ] && rm ~/.bashrc ; ln -s .config/bash/.bashrc ~/.bashrc
     [ -f ~/.profile ] && rm ~/.profile ; ln -s .config/shell/profile ~/.profile
-    sed -i 's/\/usr\/share\/zsh\/plugins\/fast-syntax-highlighting\/fast-syntax-highlighting.plugin.zsh/\/usr\/share\/zsh-syntax-highlighting\/zsh-syntax-highlighting.zsh/g' ~/.config/zsh/.zshrc
-    rm -rf .git LICENSE README.md
+    ln -s ~/.config/shell/aliasrc-$linux ~/.config/shell/aliasrc
 
-    git clone https://github.com/DavidVogelxyz/nvim.git ~/.config/nvim > /dev/null 2>&1
+    git clone https://github.com/DavidVogelxyz/nvim.git ~/.local/src/nvim > /dev/null 2>&1
+    ln -s ~/.local/src/nvim ~/.config/nvim
     echo
 }
 
 conditionalactions() {
     [[ $l33thax = "yes" ]] && echo 'require("lsp-v2")' > ~/.config/nvim/init.lua || rm ~/.config/nvim/after/plugin/lsp.lua
 
-    cp ~/.config/shell/aliasrc-$linux ~/.config/shell/aliasrc && rm ~/.config/shell/aliasrc-*
     [ $linux = debian ] && buildneovim
 }
 
@@ -121,7 +125,7 @@ buildneovim() {
     echo "packaging neovim. this may take up to TEN whole moments, depending on your computer's hardware." \
         && make CMAKE_BUILD_TYPE=RelWithDebInfo > /dev/null 2>&1
     echo "updating neovim!" && sudo make install > /dev/null 2>&1
-    echo "removing the old neovim." && sudo nala remove neovim -y > /dev/null 2>&1
+    echo "removing the old neovim." && sudo apt remove neovim -y > /dev/null 2>&1
     echo "For PATH to reset on neovim, close the terminal and open a new shell."
 }
 

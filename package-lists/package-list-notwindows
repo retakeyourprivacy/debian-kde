@@ -39,6 +39,8 @@ python3-qdarkstyle
 rpcbind
 rsync
 thunderbird
+tmux
+tree
 ufw
 unzip
 vim
@@ -46,6 +48,6 @@ vlc
 yt-dlp
 zathura
 zathura-pdf-poppler
-zsh-syntax-highlighting
 zsh
+zsh-syntax-highlighting
 kde-plasma-desktop

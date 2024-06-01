@@ -15,6 +15,7 @@ pkgs=(
 "curl"
 "git"
 "zsh"
+"zsh-syntax-highlighting"
 )
 
 ################################
@@ -23,14 +24,18 @@ pkgs=(
 
 dependencychecks() {
     for pkg in "${pkgs[@]}"; do
-        [ ! -e /usr/bin/$pkg ] && installcomment && needpkg="yes"
+        [ ! -e /usr/bin/$pkg ] && installcomment && installpkg
     done
 
     [[ $needpkg = "yes" ]] && exit 1
 }
 
 installcomment() {
-    echo "'$pkg' is not yet installed on this computer. Please install '$pkg' before proceeding."
+    echo "Installing '$pkg' now..."
+}
+
+installpkg() {
+    sudo apt install $pkg -y >/dev/null 2>&1
 }
 
 directorycheck() {
